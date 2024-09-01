@@ -1,0 +1,35 @@
+# Archivos de salida de LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bbl
+*.blg
+
+# Archivos de salida de PDF
+*.pdf
+
+# Archivos de respaldo
+*.bak
+*.backup
+*.sav
+
+# Archivos temporales
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Directorios de trabajo de LaTeX
+_build/
+latex.out/
+
+# Archivos de configuración de editores
+.vscode/
+.idea/
+*.code-workspace

@@ -1,0 +1,131 @@
+\documentclass[conference]{IEEEtran}
+%\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{cite}
+\usepackage{amsmath, amsthm,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+% Definición del entorno 'definition'
+\newtheorem{definition}{Definición}
+
+\begin{document}
+
+\title{Algunos resultados en el control en tiempo finito de robots\\
+	% {\footnotesize \textsuperscript{*}Note: Sub-titles are not captured in Xplore and
+	% should not be used}
+	% \thanks{Identify applicable funding agency here. If none, delete this.}
+}
+
+\author{
+	\IEEEauthorblockN{José Alejandro León Sánchez}
+	\IEEEauthorblockA{\textit{Posgrado de Ingeniería} \\
+		\textit{UNAM}\\
+		CDMX, Mexico}
+	\and
+	\IEEEauthorblockN{Emmanuel Cruz Zavala}
+	\IEEEauthorblockA{\textit{CUCEI} \\
+		\textit{Universidad de Guadalajara}\\
+		Jalisco, Mexico}
+}
+
+\maketitle
+
+\begin{abstract}
+	En esta ponencia, se discuten algunos avances recientes en el control en tiempo finito de robots manipuladores. Los modelos matemáticos presentados describen la dinámica del sistema utilizando datos de posición y velocidad, lo que permite establecer funciones de energía y disipación basadas en principios de homogeneidad. Este enfoque facilita el diseño de controladores que aseguran la estabilización en tiempo finito. Sin embargo, uno de los retos clave abordados es la eliminación de la dependencia del vector de gravedad, permitiendo así una regulación precisa sin la necesidad de este conocimiento previo. Se propone una solución que mantiene la robustez del control en ausencia de este término gravitacional, ampliando las posibilidades de implementación en escenarios más diversos.
+\end{abstract}
+
+\begin{IEEEkeywords}
+	Control de robots manipuladores, sistemas dinámicos, control en tiempo finito, funciones homogéneas, control por modos deslizantes.
+\end{IEEEkeywords}
+
+\section{Introducción}
+
+La regulación de la posición en robots manipuladores es un problema clave en control, donde se busca que el extremo del robot alcance una posición deseada en el espacio cartesiano. Los controladores clásicos, como el control por Par Calculado o el control adaptable, dependen de los errores de posición y velocidad articulares para estabilizar el sistema. Sin embargo, estos enfoques logran la estabilización en un tiempo asintótico y requieren conocer el vector de pares gravitacionales, lo cual limita su aplicabilidad en escenarios que demandan alta precisión y tiempos de respuesta finitos.
+
+Dicho lo anterior, la investigación actual se enfoca en el diseño de controladores que logren la regulación en tiempo finito, evitando la necesidad de conocer el vector gravitacional. Dos de las metodologías más prominentes en este campo son el control por modos deslizantes y el control basado en pasividad, las cuales permiten la regulación precisa en el espacio articular sin depender de mediciones de velocidad. El objetivo de estos enfoques es resolver tanto el problema de regulación como el de seguimiento en un tiempo finito, asegurando que los actuadores no se saturen, lo que abre la puerta a aplicaciones más robustas y eficientes en escenarios complejos.
+
+
+\section{La Dinámica de un Robot}
+Un robot manipulador está descrito por el siguiente modelo matemático:
+
+\begin{equation}
+	M(q)\ddot{q} + C(q, \dot{q})\dot{q} + \nabla_q U(q) = \tau
+\end{equation}
+donde \( U(q) \) es la matriz de energía potencial, \( M(q) \) es la matriz de inercia, \( C(q, \dot{q})\dot{q} \) es la matriz de Coriolis y Centrífuga, y \( \tau \) es el vector de pares de entrada.
+
+El diseño de controladores continuos se enfoca en garantizar que la velocidad y la posición sean puntos de equilibrio globales y estables en tiempo finito. Desde una perspectiva energética, se busca que la entrada de control compense tanto la energía del robot como la energía potencial, minimizando la energía total. Un controlador propuesto para lograr la convergencia en tiempo finito es:
+
+\begin{equation}
+	\tau = - \nabla_q U_C(q, q_d) - \nabla_{\dot{q}} F(\dot{q})
+\end{equation}
+
+donde \( F(\dot{q}) \) es una función de amortiguamiento homogénea, y \( q_d \) es la posición deseada.
+
+
+
+\section{Esquemas de Control Propuestos}
+
+Algunos esquemas de control propuestos se basan en funciones de potencias signadas, es decir, utilizan la función signo, como se puede ver en la ecuación \eqref{eq:sign_function} y en la Fig. \ref{fig:sign_function}.
+
+\begin{equation} \label{eq:sign_function}
+	[z]^p = |z|^p \text{sign}(z), \quad z \in \mathbb{R}, \quad p \in \mathbb{R}^+
+\end{equation}
+
+\begin{figure}[htbp]
+	\centerline{\includegraphics[width=0.5\textwidth]{signed_power_func.pdf}}
+	\caption{Función signo y potencia signada.}
+	\label{fig:sign_function}
+\end{figure}
+
+Uno de estos controladores propone un término de cancelación de la energía gravitacional, más una función homogénea en la ecuación \eqref{eq:control_homogeneous}, como se puede ver:
+
+\begin{equation} \label{eq:control_homogeneous}
+	\tau = \nabla_q U(q + q_d) - P[q]^p_u - D[\dot{q}]^p_f
+\end{equation}
+
+La ventaja de este algoritmo respecto al control lineal es que permite convergencia en tiempo finito y error cero, mientras que el control lineal converge a un error pequeño en estado estacionario.
+
+En cuanto a algoritmos adaptables, se han propuesto esquemas que utilizan una trayectoria de referencia virtual. También se encuentran técnicas como \textit{Backstepping}, estabilidad práctica, el método del gradiente, entre otros.
+
+\section{Control en Tiempo Finito para 1 DOF}
+
+Los algoritmos presentados para una planta de un grado de libertad están descritos por el siguiente modelo matemático:
+
+\begin{equation}
+	J \ddot{q} + mlg \sin(q) = \tau
+\end{equation}
+
+donde $J$ es la inercia, $m$ es la masa, $l$ es la longitud, y $g$ es la aceleración gravitacional. Los objetivos del control adaptable propuesto son que no se necesite conocer los parámetros de la masa ni de la longitud. Para esto, se propone un estimador de parámetros que requiere un conocimiento mínimo de la gravedad.
+
+El controlador propuesto es:
+
+\begin{equation}
+	\tau = -P [e]^a - D[\dot{q}]^b + \phi(q) \hat{\theta}
+\end{equation}
+
+donde $\phi(q) = g \sin(q)$, $e$ es el error de posición, y $\hat{\theta}$ es el estimador de parámetros. Este esquema de control tiene la ventaja de que garantiza la convergencia en tiempo finito con error cero.
+
+
+\section{Conclusiones}
+Las técnicas de control en tiempo finito han demostrado ser efectivas para sistemas robóticos manipuladores, particularmente cuando se busca precisión en el seguimiento de trayectorias y la regulación de la posición. Los esquemas basados en funciones homogéneas y estimadores de parámetros, como los presentados en este trabajo, permiten obtener convergencia en tiempo finito con error cero, sin depender de parámetros difíciles de medir, como el vector de gravedad. Además, al reducir la dependencia de modelos precisos, estos métodos son más robustos y aplicables en escenarios donde los parámetros del sistema son inciertos o cambian dinámicamente.
+
+\begin{thebibliography}{00}
+	\bibitem{spong}
+	M. W. Spong, S. Hutchinson, y M. Vidyasagar, \textit{Robot Modeling and Control}, 1ra ed., John Wiley \& Sons, 2006.
+
+	\bibitem{cruz-zavala}
+	E. Cruz-Zavala, E. Nuño, y J. A. Moreno, "On the Finite-Time Regulation of Euler–Lagrange Systems Without Velocity Measurements," \textit{IEEE Transactions on Automatic Control}, vol. 63, no. 12, pp. 4309-4316, 2018, doi: 10.1109/TAC.2018.2817232.
+
+	\bibitem{cruz-zavala-2017}
+	E. Cruz-Zavala, E. Nuño, y J. A. Moreno, "Finite-time regulation of fully-actuated Euler-Lagrange systems without velocity measurements," en *2017 IEEE 56th Annual Conference on Decision and Control (CDC)*, Melbourne, VIC, Australia, 2017, pp. 6750-6755, doi: 10.1109/CDC.2017.8264677.
+
+\end{thebibliography}
+
+\end{document}
